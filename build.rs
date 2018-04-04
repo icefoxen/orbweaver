@@ -46,6 +46,27 @@ fn retrieve_firefox_idl() {
     }
 }
 
+fn retrieve_servo_idl() {
+    // Just clone the latest git version from github
+    let servo_git_url = "https://github.com/servo/servo.git";
+    let full_download_dir = format!("{}/{}", env!("CARGO_MANIFEST_DIR"), DOWNLOAD_DIR);
+    let dir_to_clone_into = format!("{}/servo", full_download_dir);
+    if !path::Path::new(&dir_to_clone_into).is_dir() {
+        println!("Fetching servo source from {}...", servo_git_url);
+        let output = Command::new("git")
+            .args(&["clone", servo_git_url, &dir_to_clone_into])
+            .status()
+            .expect("Could not checkout servo source");
+        
+    }
+    let webidl_src = format!("{}/servo/components/script/dom/webidls", full_download_dir);
+    let webidl_dst = format!("{}/servo_webidl", full_download_dir);
+    if !path::Path::new(&webidl_dst).is_dir() {
+        fs::rename(&webidl_src, &webidl_dst).expect("Could not copy files");        
+    }
+}
+
 fn main() {
-    retrieve_firefox_idl();
+    //retrieve_firefox_idl();
+    retrieve_servo_idl();
 }

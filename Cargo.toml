@@ -6,4 +6,5 @@ authors = ["Simon Heath <icefoxen@gmail.com>"]
 build = "build.rs"
 
 [dependencies]
-webidl = "0.5"
+#webidl = "0.5"
+webidl = {git = "https://github.com/sgodwincs/webidl-rs.git", branch="master"}
