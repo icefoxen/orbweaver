@@ -11,3 +11,8 @@ Cargo.lock
 
 /target
 **/*.rs.bk
+
+
+
+# webidl files are downloaded and unpacked automatically by build.rs
+webidl_src/
