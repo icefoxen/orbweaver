@@ -41,7 +41,9 @@ fn retrieve_firefox_idl() {
     // Ok, we have an unzipped dir, move the IDL files to somewhere useful.
     let webidl_src = format!("{}/dom/webidl", unzipped_release_dir);
     let webidl_dst = format!("{}/firefox_webidl", full_download_dir);
-    fs::rename(&webidl_src, &webidl_dst).expect("Could not copy files");
+    if !path::Path::new(&webidl_dst).is_dir() {
+        fs::rename(&webidl_src, &webidl_dst).expect("Could not copy files");
+    }
 }
 
 fn main() {
