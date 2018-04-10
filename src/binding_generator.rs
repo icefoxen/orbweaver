@@ -62,35 +62,32 @@ impl Module {
             output.append_all(struct_tokens);
         }
 
-        {
-            let mut impl_tokens = quote::Tokens::new();
-            for member in &self.class_members {
-                let member_name = syn::Ident::from(member.name.clone());
-                let tokens = quote! {
-                    impl #modulename {
-                        pub fn #member_name() {
-                        }
-                    }
-                };
-                impl_tokens.append_all(tokens);
-            }
-            output.append_all(impl_tokens);
+        let mut impl_tokens = quote::Tokens::new();
+        for member in &self.class_members {
+            let member_name = syn::Ident::from(member.name.clone());
+            let tokens = quote! {
+                pub fn #member_name() {
+                }
+            };
+            impl_tokens.append_all(tokens);
+        }
+        
+        for member in &self.instance_members {
+            let member_name = syn::Ident::from(member.name.clone());
+            let tokens = quote! {
+                pub fn #member_name(&self) {
+                }
+            };
+            impl_tokens.append_all(tokens);
         }
 
-        {
-            let mut impl_tokens = quote::Tokens::new();
-            for member in &self.instance_members {
-                let member_name = syn::Ident::from(member.name.clone());
-                let tokens = quote! {
-                    impl #modulename {
-                        pub fn #member_name(&self) {
-                        }
-                    }
-                };
-                impl_tokens.append_all(tokens);
+        let full_impl = quote! {
+            #[wasm_bindgen]
+            impl #modulename {
+                #impl_tokens
             }
-            output.append_all(impl_tokens);
-        }
+        };
+        output.append_all(full_impl);
 
         output
     }
@@ -108,9 +105,6 @@ impl BindingGenerator {
     pub fn to_rust_module(&self) -> quote::Tokens {
         let mut output = quote::Tokens::new();
         let header_tokens = quote! {
-            #![feature(proc_macro, wasm_custom_section, wasm_import_module)]
-
-            extern crate wasm_bindgen;
             
             use wasm_bindgen::prelude::*;
         };

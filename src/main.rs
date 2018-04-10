@@ -1,11 +1,10 @@
 use std::ffi::OsStr;
 use std::fs;
-use std::io::{Read, Write, Cursor};
+use std::io::{Read, Write};
 
 #[macro_use]
 extern crate quote;
 extern crate rustfmt;
-#[macro_use]
 extern crate syn;
 extern crate webidl;
 use webidl::visitor::ImmutableVisitor;
@@ -31,7 +30,7 @@ fn window_test() {
         "{}/webidl_src/servo_webidl/Window.webidl",
         env!("CARGO_MANIFEST_DIR")
     );
-    let dst_file = &format!("{}/webidl_dst/servo/window.rs", env!("CARGO_MANIFEST_DIR"));
+    let dst_file = &format!("{}/webidl_dst/servo/src/window.rs", env!("CARGO_MANIFEST_DIR"));
 
     let ast = {
         let f = &mut fs::File::open(&src_file).expect("Could not open source file");
@@ -46,7 +45,12 @@ fn window_test() {
     gen.visit(&ast);
     let module_tokens = gen.to_rust_module();
 
-    
+    {
+        let f = &mut fs::File::create(&dst_file).expect("Could not open dest file");
+        let module_string = module_tokens.to_string();
+        let module_bytes = module_string.as_bytes();
+        f.write_all(&module_bytes).expect("Could not write to dest file");
+    }
     
     // Not sure if this is the BEST way to pretty-print generated Rust code, buuuuut...
     // It also doesn't seem to work, so.
