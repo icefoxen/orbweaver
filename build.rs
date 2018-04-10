@@ -4,6 +4,7 @@ use std::process::Command;
 
 const DOWNLOAD_DIR: &str = "webidl_src";
 
+#[allow(dead_code)]
 fn retrieve_firefox_idl() {
     // We retrieve IDL
     // Retrieve source for firefox 59.0, for exact files see
@@ -23,7 +24,7 @@ fn retrieve_firefox_idl() {
     // If we don't have a release archive, fetch it.
     if !path::Path::new(&release_file).is_file() {
         println!("Need to fetch release archive in {}...", release_file);
-        let output = Command::new("curl")
+        let _output = Command::new("curl")
             .args(&[&release_url, "-o", &release_file])
             .status()
             .expect("Could not retrieve archive");
@@ -32,7 +33,7 @@ fn retrieve_firefox_idl() {
     // If we don't have an archive directory, unzip it.
     if !path::Path::new(&unzipped_release_dir).is_dir() {
         println!("We need to unzip the release file into {}...", unzipped_release_dir);
-        let output = Command::new("tar")
+        let _output = Command::new("tar")
             .args(&["-xvf", &release_file, "-C", &full_download_dir])
             .status()
             .expect("Could not extract archive");
@@ -53,12 +54,14 @@ fn retrieve_servo_idl() {
     let dir_to_clone_into = format!("{}/servo", full_download_dir);
     if !path::Path::new(&dir_to_clone_into).is_dir() {
         println!("Fetching servo source from {}...", servo_git_url);
-        let output = Command::new("git")
+        let _output = Command::new("git")
             .args(&["clone", servo_git_url, &dir_to_clone_into])
             .status()
             .expect("Could not checkout servo source");
         
     }
+
+    // and copy the webidl's out of it
     let webidl_src = format!("{}/servo/components/script/dom/webidls", full_download_dir);
     let webidl_dst = format!("{}/servo_webidl", full_download_dir);
     if !path::Path::new(&webidl_dst).is_dir() {

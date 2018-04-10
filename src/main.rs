@@ -28,8 +28,7 @@ fn parse_webidls(platform_name: &str) {
         f.read_to_string(file_contents).unwrap();
 
         // Create parser and parse file
-        let parser = webidl::Parser::new();
-        if let Err(e) = parser.parse_string(file_contents) {
+        if let Err(e) = webidl::parse_string(file_contents) {
             failures += 1;
             if let Some(filename) = file_path.file_name() {
                 println!("Could not parse {:?}: {}", filename, e);
