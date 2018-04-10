@@ -7,7 +7,7 @@ use webidl::ast;
 
 /// A member in an interface definition.
 /// Translates to a Rust function definition.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Member {
     name: String,
 }
@@ -37,37 +37,45 @@ impl Module {
     }
 
     fn add_instance_member(&mut self, name: &str) {
+        // TODO:
+        // We need to generate multiple implementations for
+        // different function signatures, but we don't do that
+        // yet so for now we just dedup them.
         let mem = Member {
             name: name.to_owned(),
         };
-        self.instance_members.push(mem);
+        if !self.instance_members.contains(&mem) {
+            self.instance_members.push(mem);
+        }
     }
 
     fn add_class_member(&mut self, name: &str) {
+        // TODO:
+        // We need to generate multiple implementations for
+        // different function signatures, but we don't do that
+        // yet so for now we just dedup them.
         let mem = Member {
             name: name.to_owned(),
         };
-        self.class_members.push(mem);
+        if !self.class_members.contains(&mem) {
+            self.class_members.push(mem);
+        }
     }
 
     fn to_rust(&self) -> quote::Tokens {
         let mut output = quote::Tokens::new();
         let modulename = syn::Ident::from(self.name.clone());
-        {
-            let struct_tokens: quote::Tokens = quote! {
-                struct #modulename {
-                }
+        
+        let mut impl_tokens = quote::Tokens::new();        
+        let type_tokens = quote! {
+            type #modulename;
+        };
+        impl_tokens.append_all(type_tokens);
 
-            };
-            output.append_all(struct_tokens);
-        }
-
-        let mut impl_tokens = quote::Tokens::new();
         for member in &self.class_members {
             let member_name = syn::Ident::from(member.name.clone());
             let tokens = quote! {
-                pub fn #member_name() {
-                }
+                pub fn #member_name();
             };
             impl_tokens.append_all(tokens);
         }
@@ -75,15 +83,15 @@ impl Module {
         for member in &self.instance_members {
             let member_name = syn::Ident::from(member.name.clone());
             let tokens = quote! {
-                pub fn #member_name(&self) {
-                }
+                #[wasm_bindgen(method)]
+                pub fn #member_name(this: &#modulename);
             };
             impl_tokens.append_all(tokens);
         }
 
         let full_impl = quote! {
             #[wasm_bindgen]
-            impl #modulename {
+            extern {
                 #impl_tokens
             }
         };
