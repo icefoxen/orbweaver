@@ -33,7 +33,7 @@ Parses perfectly with `webidl`, it's what the crate maintainer has been testing 
 Its corpus of webidl files is about 1/4 the size of Firefox's though, in kilobytes at least, so there may be some missing
 stuff in there.
 
-## Chrome
+## Safari
 
 ???
 
