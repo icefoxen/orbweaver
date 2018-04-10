@@ -8,3 +8,6 @@ build = "build.rs"
 [dependencies]
 webidl = "0.6"
 #webidl = {git = "https://github.com/sgodwincs/webidl-rs.git", branch="master"}
+syn = {version = "0.13", features=["full"]}
+quote = "0.5"
+rustfmt = "0.10"

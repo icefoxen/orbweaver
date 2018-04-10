@@ -1,10 +1,16 @@
 use std::ffi::OsStr;
 use std::fs;
-use std::io::Read;
+use std::io::{Read, Write, Cursor};
 
+#[macro_use]
+extern crate quote;
+extern crate rustfmt;
+#[macro_use]
+extern crate syn;
 extern crate webidl;
 use webidl::visitor::ImmutableVisitor;
 
+#[allow(dead_code)]
 fn pretty_print(ast: &webidl::ast::AST) {
     let mut visitor = webidl::visitor::PrettyPrintVisitor::new();
     visitor.visit(ast);
@@ -38,8 +44,31 @@ fn window_test() {
 
     let gen = &mut BindingGenerator::default();
     gen.visit(&ast);
+    let module_tokens = gen.to_rust_module();
+
+    
+    
+    // Not sure if this is the BEST way to pretty-print generated Rust code, buuuuut...
+    // It also doesn't seem to work, so.
+    /*
+    {
+        let module_string = module_tokens.to_string();
+        let input = rustfmt::Input::Text(module_string);
+        let mut output = Vec::new();
+        let config = rustfmt::config::Config::default();
+        if let Ok(_res) = rustfmt::format_input(input, &config, Some(&mut output)) {
+            let output_str = String::from_utf8(output)
+                .expect("rustfmt gave you invalid utf8 somehow");
+            println!("Pretty-printed module:\n {}", output_str);
+            println!("Raw tokens:\n{}", module_tokens.to_string());
+        } else {
+            println!("rustfmt failed, module is:\n{}", module_tokens.to_string());
+        }
+    }
+     */
 }
 
+#[allow(dead_code)]
 fn parse_webidls(platform_name: &str) {
     let source_dir = format!(
         "{}/webidl_src/{}_webidl",
